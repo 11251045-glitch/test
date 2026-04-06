@@ -3,215 +3,218 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>基礎化學 - 歷屆學測考題彙整</title>
+    <title>Premium Chemistry Quiz System</title>
     <style>
         :root {
-            --primary-color: #2c3e50;
-            --accent-color: #3498db;
-            --bg-color: #f4f7f6;
+            --primary: #6366f1;
+            --secondary: #a855f7;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+        }
+        [data-theme='dark'] {
+            --bg: #0f172a;
+            --card: #1e293b;
+            --text: #f1f5f9;
         }
         body {
-            font-family: "Microsoft JhengHei", sans-serif;
-            background-color: var(--bg-color);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
             margin: 0;
-            padding: 20px;
+            transition: 0.3s ease;
             display: flex;
-            flex-direction: column;
-            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
         }
-        .container {
-            max-width: 800px;
+        .app-container {
             width: 100%;
-            background: white;
+            max-width: 900px;
+            padding: 40px 20px;
+        }
+        /* Header & Progress */
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .progress-bar {
+            height: 8px; width: 100%; background: #e2e8f0; border-radius: 4px; margin-bottom: 30px; overflow: hidden;
+        }
+        #progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--primary), var(--secondary)); transition: 0.5s; }
+
+        /* Card Styling */
+        .quiz-card {
+            background: var(--card);
             padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-radius: 20px;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
+            display: none;
+            animation: fadeIn 0.4s ease;
         }
-        h1 { text-align: center; color: var(--primary-color); }
-        .question-block {
-            margin-bottom: 40px;
-            padding: 20px;
-            border-left: 5px solid var(--accent-color);
-            background: #fafafa;
-        }
-        .options {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 10px;
-            margin-top: 15px;
-        }
-        .option-btn {
-            padding: 10px;
-            border: 1px solid #ddd;
-            background: white;
-            cursor: pointer;
-            border-radius: 6px;
-            transition: 0.3s;
-        }
-        .option-btn:hover { background: #eef7ff; }
-        .option-btn.selected {
-            background: var(--accent-color);
-            color: white;
-            border-color: var(--accent-color);
-        }
+        .quiz-card.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* 繪圖區樣式 */
-        .canvas-container {
-            margin-top: 15px;
-            border: 1px dashed #aaa;
-            position: relative;
-            background: #fff;
-            touch-action: none;
-        }
-        canvas {
-            display: block;
-            width: 100%;
-            height: 200px;
-            cursor: crosshair;
-        }
-        .canvas-tools {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            padding: 5px;
-            background: #eee;
-        }
-        .tool-btn { font-size: 12px; cursor: pointer; }
+        .question-text { font-size: 1.25rem; line-height: 1.6; font-weight: 600; margin-bottom: 25px; }
 
-        .submit-all {
-            display: block;
-            width: 100%;
-            padding: 15px;
-            font-size: 18px;
-            background: #27ae60;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            margin-top: 20px;
+        /* Options */
+        .options-grid { display: grid; gap: 12px; margin-bottom: 30px; }
+        .option {
+            padding: 15px 20px; border: 2px solid #e2e8f0; border-radius: 12px; cursor: pointer;
+            transition: all 0.2s; font-weight: 500;
         }
-        #result-area {
-            margin-top: 20px;
-            font-weight: bold;
-            text-align: center;
-            font-size: 20px;
+        .option:hover { border-color: var(--primary); background: rgba(99, 102, 241, 0.05); }
+        .option.selected { border-color: var(--primary); background: var(--primary); color: white; }
+
+        /* Advanced Canvas */
+        .sketch-box { border: 1px solid #cbd5e1; border-radius: 12px; overflow: hidden; background: white; margin-top: 20px; }
+        .sketch-tools { background: #f1f5f9; padding: 10px; display: flex; gap: 15px; align-items: center; }
+        canvas { display: block; width: 100%; height: 250px; cursor: crosshair; touch-action: none; background: #fff; }
+
+        /* Buttons */
+        .nav-btns { display: flex; justify-content: space-between; margin-top: 30px; }
+        button {
+            padding: 12px 25px; border-radius: 10px; border: none; font-weight: 600; cursor: pointer; transition: 0.2s;
         }
-        .correct { color: #27ae60; }
-        .wrong { color: #e74c3c; }
+        .btn-next { background: var(--primary); color: white; }
+        .btn-prev { background: #cbd5e1; color: var(--text); }
+        .btn-theme { background: transparent; border: 1px solid var(--primary); color: var(--primary); }
+
+        #final-score { text-align: center; font-size: 2rem; display: none; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>歷屆學測考題測驗</h1>
-    <p style="text-align: center; color: #666;">（內建繪圖計算區，支援滑鼠與觸控筆）</p>
-    <hr>
+<div class="app-container">
+    <header>
+        <h2>基礎化學 | 智能測驗系統</h2>
+        <button class="btn-theme" onclick="toggleTheme()">切換主題</button>
+    </header>
+    
+    <div class="progress-bar"><div id="progress-fill"></div></div>
 
-    <div id="quiz-form">
-        </div>
+    <div id="quiz-container"></div>
 
-    <button class="submit-all" onclick="checkAnswers()">提交所有答案</button>
-    <div id="result-area"></div>
+    <div class="nav-btns">
+        <button class="btn-prev" id="prevBtn" onclick="changeQuestion(-1)" style="visibility:hidden">上一題</button>
+        <button class="btn-next" id="nextBtn" onclick="changeQuestion(1)">下一題</button>
+    </div>
+
+    <div id="final-score" class="quiz-card">
+        <h2>測驗完成！</h2>
+        <p id="score-text"></p>
+        <button class="btn-next" onclick="location.reload()">重新挑戰</button>
+    </div>
 </div>
 
 <script>
     const questions = [
-        { q: "1. 對某一濃度為0.01 M的未知水溶液進行測試，觀察到下列現象：(1)具極佳導電性 (2)pH值與純水相近 (3)通入二氧化碳會產生白色沉澱 (4)加入等體積0.01 M氫氧化鈉溶液會產生白色沉澱。此溶液最可能含有下列何種物質？", options: ["(A) 氯化鈉", "(B) 氯化鈣", "(C) 蔗糖", "(D) 碳酸鈉", "(E) 氫氧化鉀"], answer: 1 },
-        { q: "2. 有一冰敷包內含100毫升的水，內裝25克硝酸鉀。已知硝酸鉀溶解熱為10.0 kcal/mol，水比熱1 cal/g·°C。若在30°C使用，最低可降到幾度？(KNO3=101)", options: ["(A) 0", "(B) 5", "(C) 10", "(D) 15"], answer: 1 },
-        { q: "3. 以0.5 M NaOH(aq)滴定0.2 M CH3COOH(aq) 50 mL，恰中和時溶液溫度上升1.9 °C，則中和熱約為若干 kJ？", options: ["(A) 50", "(B) 53", "(C) 56", "(D) 58"], answer: 2 },
-        { q: "4. 有一暖暖包內含100毫升的水，內裝40克氧化鈣。溶解熱為-82.8 kJ/mol，水比熱4.2 J/g·K。若在5°C使用，最高可升到幾度？(Ca=40, Cl=35.5)", options: ["(A) 36", "(B) 51", "(C) 76", "(D) 91"], answer: 2 },
-        { q: "5. 室溫時，pH = 7.0 的純水 100 毫升中含有氫離子數約為：", options: ["(A) 6.0 x 10^15", "(B) 6.0 x 10^16", "(C) 3.3 x 10^17", "(D) 6.0 x 10^18"], answer: 0 },
-        { q: "6. 若要使下列反應：x H2C=CH2 + y O2 -> z 環氧乙烷 符合原子效率（100%轉化），則 x+y+z 最小值為何？", options: ["(A) 4", "(B) 5", "(C) 6", "(D) 7", "(E) 8"], answer: 1 },
-        { q: "7. 已知 1 mol、0°C 的冰變為 100°C 的水蒸氣時，其焓含量變化為多少 kcal？(熔化熱1.44, 汽化熱9.70)", options: ["(A) 1.44", "(B) 8.26", "(C) 11.40", "(D) 12.94"], answer: 3 },
-        { q: "8. 已知中和熱反應熱為 13.5 kcal。以 0.5 M NaOH 滴定 0.2 M CH3COOH 50 mL 時，溫度上升約若干？", options: ["(A) 0.5", "(B) 1.2", "(C) 1.6", "(D) 1.9", "(E) 2.2"], answer: 3 }
+        { q: "1. 對某一濃度為0.01 M的未知水溶液進行測試，觀察到下列現象：(1)具極佳導電性 (2)pH值與純水相近 (3)通入二氧化碳會產生白色沉澱 (4)加入等體積0.01 M氫氧化鈉溶液會產生白色沉澱。此溶液最可能含有？", options: ["(A) 氯化鈉", "(B) 氯化鈣", "(C) 蔗糖", "(D) 碳酸鈉", "(E) 氫氧化鉀"], a: 1 },
+        { q: "2. 硝酸鉀溶解熱 10.0 kcal/mol，25克硝酸鉀溶於100mL水。若在30°C使用，最低可降到幾度？(KNO3=101, 水比熱=1 cal/g·°C)", options: ["(A) 0", "(B) 5", "(C) 10", "(D) 15"], a: 1 },
+        { q: "3. 以0.5 M NaOH(aq)滴定0.2 M CH3COOH(aq) 50 mL，恰中和時溶液溫度上升1.9 °C，則中和熱約為若干 kJ？", options: ["(A) 50", "(B) 53", "(C) 56", "(D) 58"], a: 2 },
+        { q: "4. 暖暖包內含40克氧化鈣與100mL水。溶解熱 -82.8 kJ/mol。若起始5°C，最高可升到幾度？(Ca=40)", options: ["(A) 36", "(B) 51", "(C) 76", "(D) 91"], a: 2 },
+        { q: "5. 室溫下，pH = 7.0 的純水 100 毫升中含有氫離子數約為幾個？", options: ["(A) 6.0 x 10^15", "(B) 6.0 x 10^16", "(C) 3.3 x 10^17", "(D) 6.0 x 10^18"], a: 0 },
+        { q: "6. 反應：x H2C=CH2 + y O2 -> z 環氧乙烷。若符合原子經濟(效率100%)，則 x+y+z 最小整數值為何？", options: ["(A) 4", "(B) 5", "(C) 6", "(D) 7", "(E) 8"], a: 1 },
+        { q: "7. 1atm下：1 mol 0°C 的冰變為 100°C 的水蒸氣，其焓含量總變化為多少 kcal？", options: ["(A) 1.44", "(B) 8.26", "(C) 11.40", "(D) 12.94"], a: 3 },
+        { q: "8. 已知中和熱為 13.5 kcal。以 0.5 M NaOH 滴定 0.2 M CH3COOH 50 mL 時，溫度約上升多少？", options: ["(A) 0.5", "(B) 1.2", "(C) 1.6", "(D) 1.9", "(E) 2.2"], a: 3 }
     ];
 
-    const quizForm = document.getElementById('quiz-form');
-    let userAnswers = new Array(questions.length).fill(null);
+    let currentIdx = 0;
+    let answers = new Array(questions.length).fill(null);
 
-    // 生成題目
-    questions.forEach((item, index) => {
-        const qDiv = document.createElement('div');
-        qDiv.className = 'question-block';
-        qDiv.innerHTML = `
-            <p>${item.q}</p>
-            <div class="options" id="opt-${index}">
-                ${item.options.map((opt, i) => `<button class="option-btn" onclick="selectOption(${index}, ${i})">${opt}</button>`).join('')}
-            </div>
-            <div class="canvas-container">
-                <div class="canvas-tools">
-                    <span style="flex-grow:1; font-size:12px; color:#999;">繪圖計算區</span>
-                    <button class="tool-btn" onclick="clearCanvas(${index})">清除重寫</button>
+    function init() {
+        const container = document.getElementById('quiz-container');
+        questions.forEach((item, i) => {
+            const card = document.createElement('div');
+            card.className = `quiz-card ${i === 0 ? 'active' : ''}`;
+            card.id = `card-${i}`;
+            card.innerHTML = `
+                <div class="question-text">${item.q}</div>
+                <div class="options-grid">
+                    ${item.options.map((opt, optIdx) => `
+                        <div class="option" onclick="select(${i}, ${optIdx})" id="opt-${i}-${optIdx}">${opt}</div>
+                    `).join('')}
                 </div>
-                <canvas id="canvas-${index}"></canvas>
-            </div>
-        `;
-        quizForm.appendChild(qDiv);
-        initCanvas(`canvas-${index}`);
-    });
-
-    function selectOption(qIdx, optIdx) {
-        userAnswers[qIdx] = optIdx;
-        const btns = document.querySelectorAll(`#opt-${qIdx} .option-btn`);
-        btns.forEach((btn, i) => {
-            btn.classList.toggle('selected', i === optIdx);
+                <div class="sketch-box">
+                    <div class="sketch-tools">
+                        <span>🖊️ 繪圖計算區</span>
+                        <button onclick="clearCanvas(${i})">清空</button>
+                    </div>
+                    <canvas id="canvas-${i}"></canvas>
+                </div>
+            `;
+            container.appendChild(card);
+            setupCanvas(i);
         });
+        updateProgress();
     }
 
-    // 繪圖邏輯
-    function initCanvas(id) {
-        const canvas = document.getElementById(id);
-        const ctx = canvas.getContext('2d');
-        let drawing = false;
+    function select(qIdx, oIdx) {
+        answers[qIdx] = oIdx;
+        document.querySelectorAll(`#card-${qIdx} .option`).forEach(el => el.classList.remove('selected'));
+        document.getElementById(`opt-${qIdx}-${oIdx}`).classList.add('selected');
+        updateProgress();
+    }
 
-        // 設定畫布解析度
-        canvas.width = canvas.offsetWidth;
-        canvas.height = 200;
+    function changeQuestion(step) {
+        document.getElementById(`card-${currentIdx}`).classList.remove('active');
+        currentIdx += step;
 
-        function getPos(e) {
-            const rect = canvas.getBoundingClientRect();
-            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-            return { x: clientX - rect.left, y: clientY - rect.top };
+        if (currentIdx >= questions.length) {
+            showResult();
+            return;
         }
 
-        function start(e) { drawing = true; draw(e); }
-        function end() { drawing = false; ctx.beginPath(); }
-        function draw(e) {
-            if (!drawing) return;
-            const pos = getPos(e);
-            ctx.lineWidth = 2;
-            ctx.lineCap = 'round';
-            ctx.strokeStyle = '#34495e';
-            ctx.lineTo(pos.x, pos.y);
-            ctx.stroke();
-            ctx.beginPath();
-            ctx.moveTo(pos.x, pos.y);
-        }
+        document.getElementById(`card-${currentIdx}`).classList.add('active');
+        document.getElementById('prevBtn').style.visibility = currentIdx === 0 ? 'hidden' : 'visible';
+        document.getElementById('nextBtn').innerText = currentIdx === questions.length - 1 ? '提交測驗' : '下一題';
+        updateProgress();
+    }
 
-        canvas.addEventListener('mousedown', start);
-        canvas.addEventListener('mousemove', draw);
-        window.addEventListener('mouseup', end);
-        canvas.addEventListener('touchstart', start);
-        canvas.addEventListener('touchmove', draw);
-        canvas.addEventListener('touchend', end);
+    function updateProgress() {
+        const done = answers.filter(a => a !== null).length;
+        document.getElementById('progress-fill').style.width = `${(done / questions.length) * 100}%`;
+    }
+
+    function setupCanvas(idx) {
+        setTimeout(() => {
+            const canvas = document.getElementById(`canvas-${idx}`);
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.offsetWidth; canvas.height = 250;
+            let drawing = false;
+            const start = (e) => { drawing = true; draw(e); };
+            const stop = () => { drawing = false; ctx.beginPath(); };
+            const draw = (e) => {
+                if (!drawing) return;
+                const rect = canvas.getBoundingClientRect();
+                const x = (e.clientX || e.touches[0].clientX) - rect.left;
+                const y = (e.clientY || e.touches[0].clientY) - rect.top;
+                ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.strokeStyle = '#6366f1';
+                ctx.lineTo(x, y); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(x, y);
+            };
+            canvas.addEventListener('mousedown', start); canvas.addEventListener('mousemove', draw); canvas.addEventListener('mouseup', stop);
+            canvas.addEventListener('touchstart', start); canvas.addEventListener('touchmove', draw); canvas.addEventListener('touchend', stop);
+        }, 100);
     }
 
     function clearCanvas(idx) {
         const canvas = document.getElementById(`canvas-${idx}`);
-        const ctx = canvas.getContext('2d');
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
     }
 
-    function checkAnswers() {
+    function showResult() {
         let score = 0;
-        questions.forEach((q, i) => {
-            if (userAnswers[i] === q.answer) score++;
-        });
-        const resultArea = document.getElementById('result-area');
-        resultArea.innerHTML = `得分：${score} / ${questions.length} <br> 
-        <span class="${score === 8 ? 'correct' : 'wrong'}">${score === 8 ? '太棒了！全對！' : '加油，再檢查看看！'}</span>`;
+        answers.forEach((ans, i) => { if(ans === questions[i].a) score++; });
+        document.getElementById('quiz-container').style.display = 'none';
+        document.querySelector('.nav-btns').style.display = 'none';
+        const final = document.getElementById('final-score');
+        final.style.display = 'block';
+        document.getElementById('score-text').innerText = `您的得分為：${score} / ${questions.length}`;
     }
+
+    function toggleTheme() {
+        const theme = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        document.body.setAttribute('data-theme', theme);
+    }
+
+    window.onload = init;
 </script>
 
 </body>
