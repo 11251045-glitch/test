@@ -1,259 +1,179 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>ElitePulse | Coach Certification</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600&family=Noto+Sans+TC:wght@400;700&display=swap');
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ElitePulse | Certification</title>
 
-        :root {
-            --primary: #d4af37;
-            --accent: #8e44ad;
-            --bg-deep: #0a0a0c;
-            --bg-card: #151518;
-            --text-main: #f8f9fa;
-            --text-dim: #a0a0a8;
-            --danger: #ff4757;
-            --success: #2ed573;
-            --border: rgba(212, 175, 55, 0.2);
-            --font-display: 'Bebas Neue', sans-serif;
-            --font-body: 'Inter', 'Noto Sans TC', sans-serif;
-        }
+<style>
+body {
+    margin:0;
+    font-family: sans-serif;
+    background:#0a0a0c;
+    color:white;
+}
 
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+#wrap { max-width:600px; margin:auto; padding:20px; }
 
-        body {
-            background: var(--bg-deep);
-            color: var(--text-main);
-            font-family: var(--font-body);
-            overflow-x: hidden;
-            min-height: 100vh;
-        }
+.card {
+    background:#151518;
+    padding:25px;
+    border-radius:16px;
+}
 
-        /* 動態背景 */
-        .bg-mesh {
-            position: fixed;
-            inset: 0;
-            z-index: -1;
-            background: 
-                radial-gradient(circle at 20% 20%, rgba(142, 68, 173, 0.12) 0%, transparent 40%),
-                radial-gradient(circle at 80% 80%, rgba(212, 175, 55, 0.08) 0%, transparent 40%);
-        }
+.opt {
+    padding:12px;
+    margin:8px 0;
+    border:1px solid #333;
+    border-radius:10px;
+    cursor:pointer;
+}
 
-        #wrap { max-width: 600px; margin: 0 auto; padding: 40px 20px; }
+.opt.sel {
+    border-color:gold;
+    color:gold;
+}
 
-        .hdr { text-align: center; margin-bottom: 40px; }
-        .brand-tag { font-family: var(--font-display); color: var(--primary); letter-spacing: 4px; font-size: 14px; }
-        .main-title { font-family: var(--font-display); font-size: 3rem; color: var(--text-main); line-height: 1.1; margin: 10px 0; }
-        .main-title span { color: var(--primary); }
+button {
+    padding:10px 20px;
+    border:none;
+    border-radius:10px;
+    margin-top:15px;
+    cursor:pointer;
+}
 
-        /* 進度條 */
-        .prog-container { margin-bottom: 30px; }
-        .prog-bar { height: 4px; background: rgba(255,255,255,0.05); border-radius: 2px; overflow: hidden; margin-bottom: 8px; }
-        .prog-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--primary)); width: 0%; transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1); }
-        .prog-info { display: flex; justify-content: space-between; font-family: var(--font-display); color: var(--primary); font-size: 14px; }
+.btn-pri {
+    background:gold;
+    color:black;
+}
 
-        /* 卡片與題目 */
-        .card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-            animation: slideIn 0.5s ease-out;
-        }
+.progress {
+    margin-bottom:20px;
+}
 
-        @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+.bar {
+    height:6px;
+    background:#222;
+    border-radius:3px;
+}
 
-        .q-text { font-size: 1.2rem; font-weight: 600; margin-bottom: 25px; line-height: 1.5; }
+.fill {
+    height:100%;
+    background:gold;
+    width:0%;
+}
 
-        .opts { display: grid; gap: 12px; }
-        .opt {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.1);
-            padding: 16px 20px;
-            border-radius: 12px;
-            color: var(--text-dim);
-            text-align: left;
-            cursor: pointer;
-            transition: 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            width: 100%;
-        }
-        .opt:active { transform: scale(0.98); }
-        .opt.sel { border-color: var(--primary); background: rgba(212, 175, 55, 0.1); color: var(--primary); }
-
-        .opt-key { font-family: var(--font-display); width: 24px; height: 24px; background: rgba(255,255,255,0.05); border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 12px; }
-
-        /* 導覽按鈕 */
-        .nav { display: flex; justify-content: space-between; margin-top: 30px; }
-        .btn { padding: 12px 24px; border-radius: 10px; font-family: var(--font-display); font-size: 16px; cursor: pointer; border: 1px solid var(--border); background: transparent; color: var(--text-main); transition: 0.3s; }
-        .btn-pri { background: var(--primary); color: var(--bg-deep); border: none; font-weight: bold; }
-        .btn:disabled { opacity: 0.2; cursor: not-allowed; }
-
-        /* 結果頁面 */
-        .result { display: none; text-align: center; animation: fadeIn 0.8s ease; }
-        .result.on { display: block; }
-        .r-score { font-size: 5rem; font-family: var(--font-display); color: var(--primary); margin: 20px 0; }
-
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    </style>
+#result { display:none; text-align:center; }
+</style>
 </head>
+
 <body>
 
-<div class="bg-mesh"></div>
-
 <div id="wrap">
-    <div id="quiz-ui">
-        <div class="hdr">
-            <div class="brand-tag">ELITEPULSE COACHING SYSTEMS</div>
-            <h1 class="main-title">教練認證<span>測驗</span></h1>
-        </div>
 
-        <div class="prog-container">
-            <div class="prog-bar"><div class="prog-fill" id="pfill"></div></div>
-            <div class="prog-info">
-                <span id="pstep">STEP 01</span>
-                <span id="plbl">0/10</span>
-            </div>
-        </div>
-
-        <div id="qarea"></div>
+<div id="quiz">
+    <div class="progress">
+        <div class="bar"><div id="fill" class="fill"></div></div>
+        <div id="progText"></div>
     </div>
 
-    <div class="result" id="result">
-        <div class="brand-tag">ASSESSMENT COMPLETE</div>
-        <div class="r-score" id="r-grade">0%</div>
-        <h2 id="r-title" style="font-family:var(--font-display); margin-bottom: 20px;"></h2>
-        <button class="btn btn-pri" onclick="location.reload()">重新挑戰</button>
-    </div>
-    <div id="lo" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.98); z-index:9999; flex-direction:column; align-items:center; justify-content:center; color:white; text-align:center;">
-    <h2 style="font-family:'Bebas Neue'; font-size:40px; color:#ff4757; letter-spacing:4px;">FOCUS REQUIRED</h2>
-    <p style="margin:20px; color:#a0a0a8;">偵測到離開頁面，請保持專注以維持測驗嚴謹性。</p>
-    <div id="lo-count" style="font-size:80px; font-family:'Bebas Neue'; color:#d4af37;">5</div>
-    <button id="lo-btn" class="btn btn-pri" onclick="resumeQuiz()" style="display:none;">返回測驗</button>
+    <div id="qbox"></div>
+</div>
+
+<div id="result">
+    <h1 id="score"></h1>
+    <h2 id="rank"></h2>
+    <button onclick="location.reload()">重新測驗</button>
 </div>
 
 </div>
 
 <script>
-    // 嚴格檢查題目資料，移除任何可能的標記語法
-    const QS = [
-        {q:"教練若要在排班系統中「全日封鎖」某一天，應先完成哪個前置動作？", o:["直接在日曆上選擇日期，系統會自動判斷身分","先前往管理後台確認無待確認預約","先選擇自己的身分（Crystal 或 Joanne），再選取日期","聯絡學員取消當日所有預約後，系統才允許封鎖"], a:2},
-        {q:"學員完成預約後，系統自動寄送的確認郵件中包含哪兩項關鍵內容？", o:["學員個人訓練歷史 + 教練的訓練計畫","課程資訊 + 教練 LINE 聯絡方式","付款收據 + 下次課程自動提醒",".ics 行事曆檔案 + 課程評分邀請"], a:1},
-        {q:"關於「學員回饋（Testimonials）」模組的描述，下列何者不正確？", o:["可以新增學員在網頁上的評價","可以刪除特定評價","可以控制評價是否顯示在品牌首頁","可以設定評價的顯示排序與置頂權重"], a:3},
-        {q:"教練要為「某次已完成課程」新增訓練數據，正確流程是？", o:["前往 /StudentProgress，輸入學員 Email","在管理後台的「訊息中心」分頁向學員傳送數值","在管理後台「預約管理」表格點擊「+ 紀錄」","直接前往 /MyProgress，代替學員手動輸入"], a:2},
-        {q:"ElitePulse 平台共有幾個主要模組（包含品牌首頁）？", o:["四個","五個","六個","七個"], a:2},
-        {q:"登入管理後台時，下列哪項描述符合指南的規定？", o:["Crystal 與 Joanne 各有專屬帳號","任何 Gmail 帳號皆可登入","必須使用 elitecoach911@gmail.com 登入","輸入教練代碼後自動驗證"], a:2},
-        {q:"想同時確認某筆預約已收款且課程已完成，需操作哪兩個欄位？", o:["「狀態」欄位 + 「付款」欄位","「+ 紀錄」按鈕 + 「顯示/隱藏」開關","「篩選功能」+ 「訊息中心」","「垃圾桶」圖示 + 「狀態」欄位"], a:0},
-        {q:"學員端若想查看自己的訓練歷史，應前往哪個路徑？", o:["/Booking","/AdminDashboard","/MyProgress","/StudentProgress"], a:2},
-        {q:"「訊息中心」中，教練要回覆學員訊息的操作方式為何？", o:["系統統一發送自動回覆","點擊左側學員名稱，右側輸入後按 Enter","透過 /StudentProgress 發送私訊","在「學員回饋」分頁回覆"], a:1},
-        {q:"關於 .ics 行事曆附件，下列敘述何者正確？", o:["需由教練手動匯出寄送","附在確認郵件中，學員可一鍵加入行事曆","學員需登入後才能下載","僅支援 Google 行事曆"], a:1}
-    ];
+const QS = [
+{q:"教練封鎖排班前要做什麼？",o:["直接封鎖","確認身分","聯絡學員","系統自動"],a:1},
+{q:"確認信包含？",o:["訓練歷史","課程+聯絡","收據","評分"],a:1},
+{q:"Testimonials錯誤？",o:["新增","刪除","控制顯示","排序權重"],a:3},
+{q:"新增訓練數據？",o:["輸入email","訊息中心","預約+紀錄","學員自己"],a:2},
+{q:"模組數量？",o:["4","5","6","7"],a:2}
+];
 
-    let cur = 0;
-    let ans = new Array(QS.length).fill(-1);
+let cur = 0;
+let ans = new Array(QS.length).fill(-1);
+let cheatCount = 0;
 
-    function renderQ(idx) {
-        const q = QS[idx];
-        const area = document.getElementById('qarea');
-        
-        let optsHtml = q.o.map((opt, i) => `
-            <button class="opt ${ans[idx] === i ? 'sel' : ''}" onclick="pick(${i})">
-                <span class="opt-key">${String.fromCharCode(65+i)}</span>
-                <span style="flex:1">${opt}</span>
-            </button>
-        `).join('');
+function render(){
+    const q = QS[cur];
 
-        area.innerHTML = `
-            <div class="card">
-                <div class="q-text">${q.q}</div>
-                <div class="opts">${optsHtml}</div>
-                <div class="nav">
-                    <button class="btn" onclick="goQ(${idx-1})" ${idx === 0 ? 'disabled' : ''}>PREV</button>
-                    ${idx === QS.length - 1 ? 
-                        `<button class="btn btn-pri" onclick="submit()">FINISH</button>` : 
-                        `<button class="btn btn-pri" onclick="goQ(${idx+1})">NEXT</button>`
-                    }
-                </div>
-            </div>
-        `;
+    let html = `<div class="card">
+    <h3>${q.q}</h3>`;
 
-        document.getElementById('pfill').style.width = ((idx / QS.length) * 100) + '%';
-        document.getElementById('plbl').textContent = `${idx}/${QS.length}`;
-        document.getElementById('pstep').textContent = `STEP ${idx+1 < 10 ? '0'+(idx+1) : idx+1}`;
+    q.o.forEach((opt,i)=>{
+        html += `
+        <div class="opt ${ans[cur]===i?'sel':''}" onclick="pick(${i})">
+        ${opt}
+        </div>`;
+    });
+
+    html += `<button class="btn-pri" onclick="next()">${cur===QS.length-1?'完成':'下一題'}</button></div>`;
+
+    document.getElementById('qbox').innerHTML = html;
+
+    document.getElementById('fill').style.width =
+        ((cur+1)/QS.length*100)+'%';
+
+    document.getElementById('progText').innerText =
+        `${cur+1}/${QS.length}`;
+}
+
+function pick(i){
+    ans[cur]=i;
+    render();
+}
+
+function next(){
+    if(ans[cur]===-1){
+        alert("請先作答！");
+        return;
     }
 
-    window.pick = function(i) {
-        ans[cur] = i;
-        document.querySelectorAll('.opt').forEach((el, idx) => {
-            el.classList.toggle('sel', idx === i);
-        });
+    if(cur<QS.length-1){
+        cur++;
+        render();
+    } else {
+        submit();
     }
+}
 
-    window.goQ = function(idx) {
-        if (idx >= 0 && idx < QS.length) {
-            cur = idx;
-            renderQ(idx);
+function submit(){
+    let correct=0;
+    ans.forEach((a,i)=>{ if(a===QS[i].a) correct++; });
+
+    let score = Math.round(correct/QS.length*100);
+
+    document.getElementById('quiz').style.display='none';
+    document.getElementById('result').style.display='block';
+
+    document.getElementById('score').innerText = score+"%";
+
+    let rank = "FAILED";
+    if(score>=90) rank="PRO COACH";
+    else if(score>=70) rank="CERTIFIED";
+
+    document.getElementById('rank').innerText = rank;
+}
+
+/* 防作弊 */
+document.addEventListener("visibilitychange",()=>{
+    if(document.hidden){
+        cheatCount++;
+        if(cheatCount>=3){
+            alert("作弊偵測，測驗失敗");
+            location.reload();
         }
     }
+});
 
-    window.submit = function() {
-        if (ans.includes(-1)) { alert("請完成所有題目！"); return; }
-        let correct = 0;
-        ans.forEach((a, i) => { if(a === QS[i].a) correct++; });
-        const score = Math.round((correct / QS.length) * 100);
-
-        document.getElementById('quiz-ui').style.display = 'none';
-        const res = document.getElementById('result');
-        res.classList.add('on');
-        document.getElementById('r-grade').textContent = score + '%';
-        document.getElementById('r-title').textContent = score >= 80 ? "CERTIFIED" : "FAILED";
-    }
-let locked = false;
-let lockCnt = 5;
-let lockTimer = null;
-
-function initLock() {
-    [span_1](start_span)// 偵測切換分頁或離開瀏覽器[span_1](end_span)
-    document.addEventListener('visibilitychange', () => { if(document.hidden && !locked) trigLock(); });
-    window.addEventListener('blur', () => { if(!locked) trigLock(); });
-}
-
-function trigLock() {
-    locked = true;
-    lockCnt = 5;
-    const ov = document.getElementById('lo');
-    const cnt = document.getElementById('lo-count');
-    const btn = document.getElementById('lo-btn');
-
-    ov.style.display = 'flex'; [span_2](start_span)// 顯示鎖定層[span_2](end_span)
-    btn.style.display = 'none';
-    cnt.style.display = 'block';
-    cnt.textContent = lockCnt;
-
-    lockTimer = setInterval(() => {
-        lockCnt--;
-        cnt.textContent = lockCnt;
-        if(lockCnt <= 0) {
-            clearInterval(lockTimer);
-            cnt.style.display = 'none';
-            btn.style.display = 'inline-block';
-        }
-    }, 1000);
-}
-
-function resumeQuiz() {
-    locked = false;
-    document.getElementById('lo').style.display = 'none';
-}
-
-    // 初始化
-    renderQ(0);
-    initLock();
+render();
 </script>
 
 </body>
