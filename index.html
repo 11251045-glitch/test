@@ -130,6 +130,13 @@
         <h2 id="r-title" style="font-family:var(--font-display); margin-bottom: 20px;"></h2>
         <button class="btn btn-pri" onclick="location.reload()">重新挑戰</button>
     </div>
+    <div id="lo" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.98); z-index:9999; flex-direction:column; align-items:center; justify-content:center; color:white; text-align:center;">
+    <h2 style="font-family:'Bebas Neue'; font-size:40px; color:#ff4757; letter-spacing:4px;">FOCUS REQUIRED</h2>
+    <p style="margin:20px; color:#a0a0a8;">偵測到離開頁面，請保持專注以維持測驗嚴謹性。</p>
+    <div id="lo-count" style="font-size:80px; font-family:'Bebas Neue'; color:#d4af37;">5</div>
+    <button id="lo-btn" class="btn btn-pri" onclick="resumeQuiz()" style="display:none;">返回測驗</button>
+</div>
+
 </div>
 
 <script>
@@ -206,6 +213,43 @@
         document.getElementById('r-grade').textContent = score + '%';
         document.getElementById('r-title').textContent = score >= 80 ? "CERTIFIED" : "FAILED";
     }
+let locked = false;
+let lockCnt = 5;
+let lockTimer = null;
+
+function initLock() {
+    [span_1](start_span)// 偵測切換分頁或離開瀏覽器[span_1](end_span)
+    document.addEventListener('visibilitychange', () => { if(document.hidden && !locked) trigLock(); });
+    window.addEventListener('blur', () => { if(!locked) trigLock(); });
+}
+
+function trigLock() {
+    locked = true;
+    lockCnt = 5;
+    const ov = document.getElementById('lo');
+    const cnt = document.getElementById('lo-count');
+    const btn = document.getElementById('lo-btn');
+
+    ov.style.display = 'flex'; [span_2](start_span)// 顯示鎖定層[span_2](end_span)
+    btn.style.display = 'none';
+    cnt.style.display = 'block';
+    cnt.textContent = lockCnt;
+
+    lockTimer = setInterval(() => {
+        lockCnt--;
+        cnt.textContent = lockCnt;
+        if(lockCnt <= 0) {
+            clearInterval(lockTimer);
+            cnt.style.display = 'none';
+            btn.style.display = 'inline-block';
+        }
+    }, 1000);
+}
+
+function resumeQuiz() {
+    locked = false;
+    document.getElementById('lo').style.display = 'none';
+}
 
     // 初始化
     renderQ(0);
