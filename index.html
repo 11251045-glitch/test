@@ -3,126 +3,200 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ElitePulse | Certification</title>
+<title>ElitePulse Certification</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 
 <style>
-body {
-    margin:0;
-    font-family: sans-serif;
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+    font-family:'Inter',sans-serif;
     background:#0a0a0c;
-    color:white;
+    color:#fff;
+    overflow:hidden;
 }
 
-#wrap { max-width:600px; margin:auto; padding:20px; }
-
-.card {
-    background:#151518;
-    padding:25px;
-    border-radius:16px;
+/* 🌌 高級流動背景 */
+.bg{
+    position:fixed;
+    inset:0;
+    background:
+    radial-gradient(circle at 20% 30%, rgba(255,215,0,0.15), transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(140,82,255,0.2), transparent 40%),
+    #0a0a0c;
+    filter: blur(40px);
+    z-index:-1;
 }
 
-.opt {
-    padding:12px;
-    margin:8px 0;
-    border:1px solid #333;
-    border-radius:10px;
-    cursor:pointer;
+/* 容器 */
+.wrap{
+    max-width:600px;
+    margin:auto;
+    padding:40px 20px;
 }
 
-.opt.sel {
-    border-color:gold;
-    color:gold;
+/* 卡片 */
+.card{
+    background:rgba(255,255,255,0.03);
+    border:1px solid rgba(255,255,255,0.08);
+    backdrop-filter: blur(20px);
+    border-radius:20px;
+    padding:30px;
+    animation:fadeUp .6s ease;
 }
 
-button {
-    padding:10px 20px;
-    border:none;
-    border-radius:10px;
-    margin-top:15px;
-    cursor:pointer;
+/* 動畫 */
+@keyframes fadeUp{
+    from{opacity:0;transform:translateY(30px)}
+    to{opacity:1;transform:translateY(0)}
 }
 
-.btn-pri {
-    background:gold;
-    color:black;
-}
-
-.progress {
+/* 問題 */
+.q{
+    font-size:1.2rem;
     margin-bottom:20px;
 }
 
-.bar {
+/* 選項 */
+.opt{
+    padding:16px;
+    margin:10px 0;
+    border-radius:12px;
+    border:1px solid rgba(255,255,255,0.1);
+    cursor:pointer;
+    transition:.25s;
+}
+
+.opt:hover{
+    border-color:#fff;
+    transform:translateY(-2px);
+}
+
+.opt.sel{
+    border-color:gold;
+    background:rgba(255,215,0,0.1);
+}
+
+/* 按鈕 */
+.btn{
+    margin-top:20px;
+    padding:12px;
+    width:100%;
+    border:none;
+    border-radius:10px;
+    background:gold;
+    color:#000;
+    font-weight:600;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.btn:active{
+    transform:scale(.97);
+}
+
+/* 進度 */
+.prog{
+    margin-bottom:20px;
+}
+
+.bar{
     height:6px;
     background:#222;
     border-radius:3px;
+    overflow:hidden;
 }
 
-.fill {
+.fill{
     height:100%;
-    background:gold;
+    background:linear-gradient(90deg,#8e44ad,gold);
     width:0%;
+    transition:.4s;
 }
 
-#result { display:none; text-align:center; }
+/* 結果 */
+.result{
+    text-align:center;
+    display:none;
+}
+
+.score{
+    font-size:60px;
+    color:gold;
+}
+
+/* 鎖定 */
+.lock{
+    position:fixed;
+    inset:0;
+    background:#000;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    flex-direction:column;
+}
 </style>
 </head>
 
 <body>
 
-<div id="wrap">
+<div class="bg"></div>
 
-<div id="quiz">
-    <div class="progress">
-        <div class="bar"><div id="fill" class="fill"></div></div>
-        <div id="progText"></div>
-    </div>
+<div class="wrap">
 
-    <div id="qbox"></div>
+<div class="prog">
+<div class="bar"><div id="fill" class="fill"></div></div>
+<div id="ptext"></div>
 </div>
 
-<div id="result">
-    <h1 id="score"></h1>
-    <h2 id="rank"></h2>
-    <button onclick="location.reload()">重新測驗</button>
+<div id="app"></div>
+
+<div id="result" class="result">
+<div class="score" id="score"></div>
+<h2 id="rank"></h2>
+<button class="btn" onclick="location.reload()">重新測驗</button>
 </div>
 
+</div>
+
+<div id="lock" class="lock">
+<h1>FOCUS</h1>
+<p>請回到測驗</p>
 </div>
 
 <script>
 const QS = [
-{q:"教練封鎖排班前要做什麼？",o:["直接封鎖","確認身分","聯絡學員","系統自動"],a:1},
-{q:"確認信包含？",o:["訓練歷史","課程+聯絡","收據","評分"],a:1},
-{q:"Testimonials錯誤？",o:["新增","刪除","控制顯示","排序權重"],a:3},
-{q:"新增訓練數據？",o:["輸入email","訊息中心","預約+紀錄","學員自己"],a:2},
-{q:"模組數量？",o:["4","5","6","7"],a:2}
+{q:"教練若要在排班系統中「全日封鎖」某一天，應先完成哪個前置動作？", o:["直接在日曆上選擇日期，系統會自動判斷身分","先前往管理後台確認無待確認預約","先選擇自己的身分（Crystal 或 Joanne），再選取日期","聯絡學員取消當日所有預約後，系統才允許封鎖"], a:2},
+{q:"學員完成預約後，系統自動寄送的確認郵件中包含哪兩項關鍵內容？", o:["學員個人訓練歷史 + 教練的訓練計畫","課程資訊 + 教練 LINE 聯絡方式","付款收據 + 下次課程自動提醒",".ics 行事曆檔案 + 課程評分邀請"], a:1},
+{q:"關於「學員回饋（Testimonials）」模組的描述，下列何者不正確？", o:["可以新增學員在網頁上的評價","可以刪除特定評價","可以控制評價是否顯示在品牌首頁","可以設定評價的顯示排序與置頂權重"], a:3},
+{q:"教練要為「某次已完成課程」新增訓練數據，正確流程是？", o:["前往 /StudentProgress，輸入學員 Email","在管理後台的「訊息中心」分頁向學員傳送數值","在管理後台「預約管理」表格點擊「+ 紀錄」","直接前往 /MyProgress，代替學員手動輸入"], a:2},
+{q:"ElitePulse 平台共有幾個主要模組（包含品牌首頁）？", o:["四個","五個","六個","七個"], a:2}
 ];
 
-let cur = 0;
-let ans = new Array(QS.length).fill(-1);
-let cheatCount = 0;
+let cur=0;
+let ans=new Array(QS.length).fill(-1);
+let leave=0;
 
+/* 渲染 */
 function render(){
-    const q = QS[cur];
+    const q=QS[cur];
 
-    let html = `<div class="card">
-    <h3>${q.q}</h3>`;
+    document.getElementById("app").innerHTML=`
+    <div class="card">
+        <div class="q">${q.q}</div>
+        ${q.o.map((opt,i)=>`
+            <div class="opt ${ans[cur]==i?'sel':''}" onclick="pick(${i})">
+            ${opt}
+            </div>
+        `).join("")}
+        <button class="btn" onclick="next()">
+        ${cur==QS.length-1?"完成":"下一題"}
+        </button>
+    </div>
+    `;
 
-    q.o.forEach((opt,i)=>{
-        html += `
-        <div class="opt ${ans[cur]===i?'sel':''}" onclick="pick(${i})">
-        ${opt}
-        </div>`;
-    });
-
-    html += `<button class="btn-pri" onclick="next()">${cur===QS.length-1?'完成':'下一題'}</button></div>`;
-
-    document.getElementById('qbox').innerHTML = html;
-
-    document.getElementById('fill').style.width =
-        ((cur+1)/QS.length*100)+'%';
-
-    document.getElementById('progText').innerText =
-        `${cur+1}/${QS.length}`;
+    document.getElementById("fill").style.width=((cur+1)/QS.length*100)+"%";
+    document.getElementById("ptext").innerText=`${cur+1}/${QS.length}`;
 }
 
 function pick(i){
@@ -131,46 +205,37 @@ function pick(i){
 }
 
 function next(){
-    if(ans[cur]===-1){
-        alert("請先作答！");
-        return;
-    }
-
-    if(cur<QS.length-1){
-        cur++;
-        render();
-    } else {
-        submit();
-    }
+    if(ans[cur]==-1){alert("請作答");return;}
+    if(cur<QS.length-1){cur++;render();}
+    else submit();
 }
 
 function submit(){
     let correct=0;
-    ans.forEach((a,i)=>{ if(a===QS[i].a) correct++; });
+    ans.forEach((a,i)=>{if(a==QS[i].a)correct++;});
+    let score=Math.round(correct/QS.length*100);
 
-    let score = Math.round(correct/QS.length*100);
-
-    document.getElementById('quiz').style.display='none';
-    document.getElementById('result').style.display='block';
-
-    document.getElementById('score').innerText = score+"%";
-
-    let rank = "FAILED";
-    if(score>=90) rank="PRO COACH";
-    else if(score>=70) rank="CERTIFIED";
-
-    document.getElementById('rank').innerText = rank;
+    document.getElementById("app").style.display="none";
+    document.getElementById("result").style.display="block";
+    document.getElementById("score").innerText=score+"%";
+    document.getElementById("rank").innerText=
+        score>=80?"CERTIFIED":"FAILED";
 }
 
 /* 防作弊 */
 document.addEventListener("visibilitychange",()=>{
     if(document.hidden){
-        cheatCount++;
-        if(cheatCount>=3){
-            alert("作弊偵測，測驗失敗");
+        leave++;
+        document.getElementById("lock").style.display="flex";
+        if(leave>=2){
+            alert("測驗失敗");
             location.reload();
         }
     }
+});
+
+window.addEventListener("focus",()=>{
+    document.getElementById("lock").style.display="none";
 });
 
 render();
