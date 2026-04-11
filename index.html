@@ -1,220 +1,921 @@
 <!DOCTYPE html>
+
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Premium Chemistry Quiz System</title>
-    <style>
-        :root {
-            --primary: #6366f1;
-            --secondary: #a855f7;
-            --bg: #f8fafc;
-            --card: #ffffff;
-            --text: #1e293b;
-        }
-        [data-theme='dark'] {
-            --bg: #0f172a;
-            --card: #1e293b;
-            --text: #f1f5f9;
-        }
-        body {
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            transition: 0.3s ease;
-            display: flex;
-            justify-content: center;
-            min-height: 100vh;
-        }
-        .app-container {
-            width: 100%;
-            max-width: 900px;
-            padding: 40px 20px;
-        }
-        /* Header & Progress */
-        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .progress-bar {
-            height: 8px; width: 100%; background: #e2e8f0; border-radius: 4px; margin-bottom: 30px; overflow: hidden;
-        }
-        #progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--primary), var(--secondary)); transition: 0.5s; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ElitePulse 教練認證測驗</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #c9a84c;
+    --gold-light: #e8c97a;
+    --dark: #0a0a0a;
+    --dark2: #111111;
+    --dark3: #1a1a1a;
+    --dark4: #222222;
+    --text: #e8e0d0;
+    --text-dim: #8a8070;
+    --red: #c0392b;
+    --green: #27ae60;
+    --border: rgba(201,168,76,0.2);
+  }
 
-        /* Card Styling */
-        .quiz-card {
-            background: var(--card);
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
-            display: none;
-            animation: fadeIn 0.4s ease;
-        }
-        .quiz-card.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+- { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
 
-        .question-text { font-size: 1.25rem; line-height: 1.6; font-weight: 600; margin-bottom: 25px; }
+html, body {
+background: var(–dark);
+color: var(–text);
+font-family: ‘Noto Sans TC’, sans-serif;
+min-height: 100vh;
+overflow-x: hidden;
+}
 
-        /* Options */
-        .options-grid { display: grid; gap: 12px; margin-bottom: 30px; }
-        .option {
-            padding: 15px 20px; border: 2px solid #e2e8f0; border-radius: 12px; cursor: pointer;
-            transition: all 0.2s; font-weight: 500;
-        }
-        .option:hover { border-color: var(--primary); background: rgba(99, 102, 241, 0.05); }
-        .option.selected { border-color: var(--primary); background: var(--primary); color: white; }
+/* LOCKDOWN OVERLAY */
+#lockdown-overlay {
+display: none;
+position: fixed; inset: 0;
+background: rgba(0,0,0,0.97);
+z-index: 9999;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+text-align: center;
+gap: 24px;
+}
+#lockdown-overlay.active { display: flex; }
+.lockdown-icon { font-size: 80px; animation: pulse-warn 1s ease-in-out infinite; }
+@keyframes pulse-warn {
+0%,100% { transform: scale(1); filter: drop-shadow(0 0 20px #c0392b); }
+50% { transform: scale(1.1); filter: drop-shadow(0 0 40px #ff0000); }
+}
+.lockdown-title {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 48px;
+color: var(–red);
+letter-spacing: 4px;
+}
+.lockdown-msg {
+font-size: 18px;
+color: var(–text);
+max-width: 420px;
+line-height: 1.7;
+}
+#lockdown-counter {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 72px;
+color: var(–gold);
+letter-spacing: 8px;
+}
+#resume-btn {
+margin-top: 8px;
+padding: 14px 48px;
+background: var(–gold);
+color: var(–dark);
+border: none;
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 24px;
+letter-spacing: 3px;
+cursor: pointer;
+display: none;
+transition: all 0.3s;
+}
+#resume-btn:hover { background: var(–gold-light); transform: scale(1.05); }
 
-        /* Advanced Canvas */
-        .sketch-box { border: 1px solid #cbd5e1; border-radius: 12px; overflow: hidden; background: white; margin-top: 20px; }
-        .sketch-tools { background: #f1f5f9; padding: 10px; display: flex; gap: 15px; align-items: center; }
-        canvas { display: block; width: 100%; height: 250px; cursor: crosshair; touch-action: none; background: #fff; }
+/* BACKGROUND */
+.bg-grid {
+position: fixed; inset: 0; pointer-events: none; z-index: 0;
+background-image:
+linear-gradient(rgba(201,168,76,0.03) 1px, transparent 1px),
+linear-gradient(90deg, rgba(201,168,76,0.03) 1px, transparent 1px);
+background-size: 60px 60px;
+}
+.bg-glow {
+position: fixed;
+width: 600px; height: 600px;
+background: radial-gradient(circle, rgba(201,168,76,0.06) 0%, transparent 70%);
+pointer-events: none; z-index: 0;
+top: -200px; right: -200px;
+}
 
-        /* Buttons */
-        .nav-btns { display: flex; justify-content: space-between; margin-top: 30px; }
-        button {
-            padding: 12px 25px; border-radius: 10px; border: none; font-weight: 600; cursor: pointer; transition: 0.2s;
-        }
-        .btn-next { background: var(--primary); color: white; }
-        .btn-prev { background: #cbd5e1; color: var(--text); }
-        .btn-theme { background: transparent; border: 1px solid var(--primary); color: var(--primary); }
+/* CONTAINER */
+.container {
+position: relative; z-index: 1;
+max-width: 780px;
+margin: 0 auto;
+padding: 60px 24px 100px;
+}
 
-        #final-score { text-align: center; font-size: 2rem; display: none; }
-    </style>
+/* HEADER */
+.header {
+text-align: center;
+margin-bottom: 60px;
+animation: fadeDown 0.8s ease both;
+}
+@keyframes fadeDown {
+from { opacity:0; transform: translateY(-30px); }
+to { opacity:1; transform: translateY(0); }
+}
+.brand-line {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 13px;
+letter-spacing: 8px;
+color: var(–gold);
+margin-bottom: 12px;
+text-transform: uppercase;
+}
+.main-title {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: clamp(42px, 8vw, 72px);
+letter-spacing: 4px;
+color: var(–text);
+line-height: 1;
+margin-bottom: 8px;
+}
+.main-title span { color: var(–gold); }
+.sub-title {
+font-size: 14px;
+color: var(–text-dim);
+letter-spacing: 2px;
+margin-bottom: 32px;
+}
+
+/* PROGRESS BAR */
+.progress-wrap {
+display: flex;
+align-items: center;
+gap: 16px;
+margin-bottom: 8px;
+}
+.progress-track {
+flex: 1;
+height: 3px;
+background: rgba(255,255,255,0.08);
+position: relative;
+overflow: hidden;
+}
+.progress-fill {
+height: 100%;
+background: linear-gradient(90deg, var(–gold), var(–gold-light));
+transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+position: relative;
+}
+.progress-fill::after {
+content: ‘’;
+position: absolute; right: 0; top: -3px;
+width: 9px; height: 9px;
+background: var(–gold-light);
+border-radius: 50%;
+box-shadow: 0 0 12px var(–gold);
+}
+.progress-label {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 18px;
+color: var(–gold);
+min-width: 52px;
+text-align: right;
+}
+.step-dots {
+display: flex; gap: 6px; justify-content: center;
+margin-top: 14px;
+}
+.step-dot {
+width: 6px; height: 6px;
+border-radius: 50%;
+background: rgba(255,255,255,0.1);
+transition: all 0.4s;
+}
+.step-dot.done { background: var(–gold); }
+.step-dot.current { background: var(–gold-light); transform: scale(1.6); box-shadow: 0 0 8px var(–gold); }
+
+/* QUESTION CARD */
+.q-card {
+background: var(–dark2);
+border: 1px solid var(–border);
+padding: 44px 44px 36px;
+position: relative;
+overflow: hidden;
+animation: fadeUp 0.5s ease both;
+}
+@keyframes fadeUp {
+from { opacity:0; transform: translateY(24px); }
+to { opacity:1; transform: translateY(0); }
+}
+.q-card::before {
+content: ‘’;
+position: absolute; top: 0; left: 0;
+width: 4px; height: 100%;
+background: linear-gradient(180deg, var(–gold), transparent);
+}
+.q-number {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 12px;
+letter-spacing: 4px;
+color: var(–gold);
+margin-bottom: 20px;
+display: flex;
+align-items: center;
+gap: 12px;
+}
+.q-number::after {
+content: ‘’;
+flex: 1;
+height: 1px;
+background: var(–border);
+}
+.q-text {
+font-size: 18px;
+font-weight: 500;
+line-height: 1.7;
+color: var(–text);
+margin-bottom: 36px;
+letter-spacing: 0.3px;
+}
+.q-hint {
+font-size: 12px;
+color: var(–text-dim);
+letter-spacing: 1px;
+margin-bottom: 8px;
+text-transform: uppercase;
+}
+
+/* OPTIONS */
+.options-list {
+display: flex;
+flex-direction: column;
+gap: 12px;
+}
+.option-btn {
+display: flex;
+align-items: flex-start;
+gap: 16px;
+padding: 16px 20px;
+background: transparent;
+border: 1px solid rgba(255,255,255,0.07);
+cursor: pointer;
+text-align: left;
+color: var(–text);
+font-family: ‘Noto Sans TC’, sans-serif;
+font-size: 15px;
+line-height: 1.6;
+transition: all 0.25s;
+position: relative;
+overflow: hidden;
+}
+.option-btn::before {
+content: ‘’;
+position: absolute; inset: 0;
+background: linear-gradient(135deg, rgba(201,168,76,0.06), transparent);
+opacity: 0;
+transition: opacity 0.3s;
+}
+.option-btn:hover { border-color: rgba(201,168,76,0.4); }
+.option-btn:hover::before { opacity: 1; }
+.option-btn.selected {
+border-color: var(–gold);
+background: rgba(201,168,76,0.08);
+}
+.option-btn.selected::before { opacity: 1; }
+.option-btn.correct {
+border-color: var(–green) !important;
+background: rgba(39,174,96,0.12) !important;
+}
+.option-btn.wrong {
+border-color: var(–red) !important;
+background: rgba(192,57,43,0.12) !important;
+}
+.option-btn.reveal-correct {
+border-color: rgba(39,174,96,0.5) !important;
+background: rgba(39,174,96,0.06) !important;
+}
+.option-key {
+min-width: 28px; height: 28px;
+border: 1px solid currentColor;
+display: flex; align-items: center; justify-content: center;
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 14px;
+letter-spacing: 1px;
+color: var(–text-dim);
+flex-shrink: 0;
+transition: all 0.25s;
+margin-top: 1px;
+}
+.option-btn.selected .option-key { color: var(–gold); border-color: var(–gold); }
+.option-btn.correct .option-key { color: var(–green); border-color: var(–green); }
+.option-btn.wrong .option-key { color: var(–red); border-color: var(–red); }
+.option-btn.reveal-correct .option-key { color: var(–green); border-color: var(–green); opacity: 0.7; }
+.option-text { flex: 1; }
+
+/* FEEDBACK */
+.feedback-box {
+margin-top: 20px;
+padding: 16px 20px;
+border-left: 3px solid;
+font-size: 14px;
+line-height: 1.7;
+display: none;
+}
+.feedback-box.correct { border-color: var(–green); background: rgba(39,174,96,0.07); }
+.feedback-box.wrong { border-color: var(–red); background: rgba(192,57,43,0.07); }
+.feedback-title { font-weight: 700; margin-bottom: 6px; font-size: 13px; letter-spacing: 1px; }
+.feedback-box.correct .feedback-title { color: var(–green); }
+.feedback-box.wrong .feedback-title { color: var(–red); }
+
+/* NAV */
+.q-nav {
+display: flex;
+align-items: center;
+justify-content: space-between;
+margin-top: 32px;
+padding-top: 24px;
+border-top: 1px solid var(–border);
+}
+.nav-btn {
+padding: 12px 32px;
+border: 1px solid var(–border);
+background: transparent;
+color: var(–text);
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 18px;
+letter-spacing: 3px;
+cursor: pointer;
+transition: all 0.25s;
+position: relative;
+overflow: hidden;
+}
+.nav-btn::after {
+content: ‘’;
+position: absolute; bottom: 0; left: 0;
+width: 0; height: 2px;
+background: var(–gold);
+transition: width 0.3s;
+}
+.nav-btn:hover::after { width: 100%; }
+.nav-btn:hover { border-color: var(–gold); color: var(–gold); }
+.nav-btn:disabled { opacity: 0.25; cursor: not-allowed; }
+.nav-btn:disabled::after { display: none; }
+.nav-btn.primary {
+background: var(–gold);
+color: var(–dark);
+border-color: var(–gold);
+}
+.nav-btn.primary:hover { background: var(–gold-light); border-color: var(–gold-light); color: var(–dark); }
+.nav-btn.primary::after { display: none; }
+.score-mini {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 14px;
+color: var(–text-dim);
+letter-spacing: 2px;
+}
+
+/* RESULT */
+.result-screen {
+text-align: center;
+padding: 60px 24px;
+animation: fadeUp 0.8s ease both;
+display: none;
+}
+.result-screen.show { display: block; }
+.result-icon { font-size: 80px; margin-bottom: 24px; }
+.result-grade {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 100px;
+line-height: 1;
+color: var(–gold);
+letter-spacing: 4px;
+margin-bottom: 8px;
+text-shadow: 0 0 60px rgba(201,168,76,0.4);
+}
+.result-title {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 32px;
+letter-spacing: 4px;
+color: var(–text);
+margin-bottom: 12px;
+}
+.result-msg {
+font-size: 15px;
+color: var(–text-dim);
+line-height: 1.8;
+max-width: 480px;
+margin: 0 auto 40px;
+}
+.result-breakdown {
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+gap: 1px;
+background: var(–border);
+border: 1px solid var(–border);
+max-width: 480px;
+margin: 0 auto 40px;
+}
+.breakdown-item {
+background: var(–dark2);
+padding: 20px 12px;
+text-align: center;
+}
+.breakdown-num {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 40px;
+color: var(–gold);
+}
+.breakdown-label {
+font-size: 11px;
+color: var(–text-dim);
+letter-spacing: 2px;
+text-transform: uppercase;
+margin-top: 4px;
+}
+.restart-btn {
+padding: 16px 60px;
+background: transparent;
+border: 1px solid var(–gold);
+color: var(–gold);
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 22px;
+letter-spacing: 4px;
+cursor: pointer;
+transition: all 0.3s;
+}
+.restart-btn:hover { background: var(–gold); color: var(–dark); }
+
+/* TOAST */
+#toast {
+position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%);
+background: var(–dark3);
+border: 1px solid var(–red);
+color: var(–text);
+padding: 12px 28px;
+font-size: 14px;
+letter-spacing: 1px;
+z-index: 9000;
+opacity: 0;
+transition: opacity 0.3s;
+pointer-events: none;
+white-space: nowrap;
+}
+#toast.show { opacity: 1; }
+
+/* ATTEMPT BADGE */
+.attempt-badge {
+display: inline-flex;
+align-items: center;
+gap: 10px;
+margin-bottom: 28px;
+padding: 10px 22px;
+border: 1px solid;
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 15px;
+letter-spacing: 3px;
+position: relative;
+overflow: hidden;
+}
+.attempt-badge::before {
+content: ‘’;
+position: absolute; inset: 0;
+opacity: 0.07;
+}
+.attempt-badge.first {
+border-color: var(–green);
+color: var(–green);
+}
+.attempt-badge.first::before { background: var(–green); }
+.attempt-badge.repeat {
+border-color: var(–red);
+color: var(–red);
+animation: badge-pulse 2s ease-in-out infinite;
+}
+.attempt-badge.repeat::before { background: var(–red); }
+@keyframes badge-pulse {
+0%,100% { box-shadow: 0 0 0 0 rgba(192,57,43,0.3); }
+50% { box-shadow: 0 0 0 8px rgba(192,57,43,0); }
+}
+.attempt-dot {
+width: 8px; height: 8px;
+border-radius: 50%;
+background: currentColor;
+animation: dot-blink 1.2s ease-in-out infinite;
+}
+@keyframes dot-blink {
+0%,100% { opacity: 1; }
+50% { opacity: 0.3; }
+}
+.attempt-num {
+font-size: 22px;
+color: currentColor;
+}
+
+@media (max-width: 560px) {
+.q-card { padding: 28px 20px 24px; }
+.q-text { font-size: 16px; }
+.result-breakdown { grid-template-columns: 1fr; max-width: 240px; }
+.main-title { font-size: 40px; }
+}
+</style>
+
 </head>
 <body>
 
-<div class="app-container">
-    <header>
-        <h2>基礎化學 | 智能測驗系統</h2>
-        <button class="btn-theme" onclick="toggleTheme()">切換主題</button>
-    </header>
-    
-    <div class="progress-bar"><div id="progress-fill"></div></div>
+<div class="bg-grid"></div>
+<div class="bg-glow"></div>
 
-    <div id="quiz-container"></div>
+<!-- LOCKDOWN OVERLAY -->
 
-    <div class="nav-btns">
-        <button class="btn-prev" id="prevBtn" onclick="changeQuestion(-1)" style="visibility:hidden">上一題</button>
-        <button class="btn-next" id="nextBtn" onclick="changeQuestion(1)">下一題</button>
+<div id="lockdown-overlay">
+  <div class="lockdown-icon">🔒</div>
+  <div class="lockdown-title">FOCUS REQUIRED</div>
+  <div class="lockdown-msg">偵測到您離開測驗頁面。<br>本測驗要求全程專注，<br>請勿切換分頁或最小化視窗。</div>
+  <div id="lockdown-counter">5</div>
+  <button id="resume-btn" onclick="resumeQuiz()">返回測驗</button>
+</div>
+
+<div id="toast">⚠ 請選擇答案後再繼續</div>
+
+<div class="container">
+  <!-- HEADER -->
+  <div class="header">
+    <div class="brand-line">ElitePulse Coaching · 教練認證系統</div>
+    <h1 class="main-title">操作指南<span>測驗</span></h1>
+    <p class="sub-title">COACH CERTIFICATION ASSESSMENT · 限時模式</p>
+
+```
+<div class="progress-wrap">
+  <div class="progress-track">
+    <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+  </div>
+  <div class="progress-label" id="progress-label">0/10</div>
+</div>
+<div class="step-dots" id="step-dots"></div>
+```
+
+  </div>
+
+  <!-- QUIZ AREA -->
+
+  <div id="quiz-area"></div>
+
+  <!-- RESULT -->
+
+  <div class="result-screen" id="result-screen">
+    <div id="attempt-badge-wrap" style="display:flex;justify-content:center;margin-bottom:4px;"></div>
+    <div class="result-icon" id="result-icon"></div>
+    <div class="result-grade" id="result-grade"></div>
+    <div class="result-title" id="result-title"></div>
+    <div class="result-msg" id="result-msg"></div>
+    <div class="result-breakdown">
+      <div class="breakdown-item">
+        <div class="breakdown-num" id="r-correct">0</div>
+        <div class="breakdown-label">答對</div>
+      </div>
+      <div class="breakdown-item">
+        <div class="breakdown-num" id="r-wrong">0</div>
+        <div class="breakdown-label">答錯</div>
+      </div>
+      <div class="breakdown-item">
+        <div class="breakdown-num" id="r-pct">0%</div>
+        <div class="breakdown-label">正確率</div>
+      </div>
     </div>
-
-    <div id="final-score" class="quiz-card">
-        <h2>測驗完成！</h2>
-        <p id="score-text"></p>
-        <button class="btn-next" onclick="location.reload()">重新挑戰</button>
-    </div>
+    <button class="restart-btn" onclick="restartQuiz()">重新挑戰</button>
+  </div>
 </div>
 
 <script>
-    const questions = [
-        { q: "1. 對某一濃度為0.01 M的未知水溶液進行測試，觀察到下列現象：(1)具極佳導電性 (2)pH值與純水相近 (3)通入二氧化碳會產生白色沉澱 (4)加入等體積0.01 M氫氧化鈉溶液會產生白色沉澱。此溶液最可能含有？", options: ["(A) 氯化鈉", "(B) 氯化鈣", "(C) 蔗糖", "(D) 碳酸鈉", "(E) 氫氧化鉀"], a: 1 },
-        { q: "2. 硝酸鉀溶解熱 10.0 kcal/mol，25克硝酸鉀溶於100mL水。若在30°C使用，最低可降到幾度？(KNO3=101, 水比熱=1 cal/g·°C)", options: ["(A) 0", "(B) 5", "(C) 10", "(D) 15"], a: 1 },
-        { q: "3. 以0.5 M NaOH(aq)滴定0.2 M CH3COOH(aq) 50 mL，恰中和時溶液溫度上升1.9 °C，則中和熱約為若干 kJ？", options: ["(A) 50", "(B) 53", "(C) 56", "(D) 58"], a: 2 },
-        { q: "4. 暖暖包內含40克氧化鈣與100mL水。溶解熱 -82.8 kJ/mol。若起始5°C，最高可升到幾度？(Ca=40)", options: ["(A) 36", "(B) 51", "(C) 76", "(D) 91"], a: 2 },
-        { q: "5. 室溫下，pH = 7.0 的純水 100 毫升中含有氫離子數約為幾個？", options: ["(A) 6.0 x 10^15", "(B) 6.0 x 10^16", "(C) 3.3 x 10^17", "(D) 6.0 x 10^18"], a: 0 },
-        { q: "6. 反應：x H2C=CH2 + y O2 -> z 環氧乙烷。若符合原子經濟(效率100%)，則 x+y+z 最小整數值為何？", options: ["(A) 4", "(B) 5", "(C) 6", "(D) 7", "(E) 8"], a: 1 },
-        { q: "7. 1atm下：1 mol 0°C 的冰變為 100°C 的水蒸氣，其焓含量總變化為多少 kcal？", options: ["(A) 1.44", "(B) 8.26", "(C) 11.40", "(D) 12.94"], a: 3 },
-        { q: "8. 已知中和熱為 13.5 kcal。以 0.5 M NaOH 滴定 0.2 M CH3COOH 50 mL 時，溫度約上升多少？", options: ["(A) 0.5", "(B) 1.2", "(C) 1.6", "(D) 1.9", "(E) 2.2"], a: 3 }
-    ];
+const questions = [
+  {
+    q: "教練若要在排班系統中「全日封鎖」某一天，應先完成哪個前置動作？",
+    opts: [
+      "直接在日曆上選擇日期，系統會自動判斷身分",
+      "先前往管理後台（/AdminDashboard）確認無待確認預約",
+      "先選擇自己的身分（Crystal 或 Joanne），再選取日期",
+      "聯絡學員取消當日所有預約後，系統才允許封鎖"
+    ],
+    ans: 2,
+    fb: "根據操作指南第三步，進入排班管理後必須先選擇身分（Crystal 或 Joanne），才能選取日期並進行封鎖設定。若未選擇身分就操作，無法正確套用到對應教練的時段。"
+  },
+  {
+    q: "學員完成預約後，系統自動寄送的確認郵件中包含哪兩項關鍵內容？（請選最完整的答案）",
+    opts: [
+      "學員個人訓練歷史 + 教練的訓練計畫",
+      "課程資訊 + 教練 LINE 聯絡方式",
+      "付款收據 + 下次課程自動提醒",
+      ".ics 行事曆檔案 + 課程評分邀請"
+    ],
+    ans: 1,
+    fb: "指南自動化支援說明：確認郵件內含「課程資訊」與「教練 LINE」。.ics 檔案確實存在，但它是附件功能（行事曆同步），不是信件的主要兩項內容。"
+  },
+  {
+    q: "關於「學員回饋（Testimonials）」模組的描述，下列何者不正確？",
+    opts: [
+      "可以新增學員在網頁上的評價",
+      "可以刪除特定評價",
+      "可以控制評價是否顯示在品牌首頁",
+      "可以設定評價的顯示排序與置頂權重"
+    ],
+    ans: 3,
+    fb: "根據指南，學員回饋模組的功能為：管理評論（檢視/新增/刪除）與曝光控制（顯示/隱藏開關）。指南中並未提及任何排序或置頂權重功能，此為干擾選項。"
+  },
+  {
+    q: "教練要為「某次已完成課程」新增訓練數據，正確流程是？",
+    opts: [
+      "前往 /StudentProgress，輸入學員 Email，點擊「新增紀錄」按鈕",
+      "在管理後台的「訊息中心」分頁，向學員傳送訓練數值",
+      "在管理後台「預約管理」表格中找到該預約，點擊「+ 紀錄」",
+      "直接前往 /MyProgress，代替學員手動輸入訓練數據"
+    ],
+    ans: 2,
+    fb: "根據第四步說明：「在『預約管理』表格中找到已完成的課程，點擊『+ 紀錄』，依序填寫指標名稱、數值、單位、RPE 及達成率。」/StudentProgress 是查詢用途，不具直接新增功能入口。"
+  },
+  {
+    q: "ElitePulse 平台共有幾個主要模組（包含品牌首頁）？",
+    opts: ["四個", "五個", "六個", "七個"],
+    ans: 2,
+    fb: "指南開頭明確列出六大模組：品牌首頁 (/)、預約系統 (/Booking)、學員專區 (/MyProgress)、管理後台 (/AdminDashboard)、排班系統 (/CoachSchedule)、數據中心 (/StudentProgress)，共六個。"
+  },
+  {
+    q: "登入管理後台時，下列哪項描述完全符合指南的規定？",
+    opts: [
+      "Crystal 與 Joanne 各有專屬帳號，分別登入",
+      "任何 Gmail 帳號皆可登入，系統會透過角色驗證區分權限",
+      "必須使用 elitecoach911@gmail.com 透過 Google 登入",
+      "輸入教練代碼後，系統自動以服務帳號完成驗證"
+    ],
+    ans: 2,
+    fb: "指南第一步「重要」警示：「請務必使用管理員授權帳號 elitecoach911@gmail.com 登入」。使用其他帳號將無法取得管理員權限。"
+  },
+  {
+    q: "若教練在「預約管理」分頁想同時確認某筆預約已收款且課程已完成，需操作哪兩個欄位？",
+    opts: [
+      "「狀態」欄位 + 「付款」欄位",
+      "「+ 紀錄」按鈕 + 「顯示/隱藏」開關",
+      "「篩選功能」+ 「訊息中心」",
+      "「垃圾桶」圖示 + 「狀態」欄位"
+    ],
+    ans: 0,
+    fb: "根據預約管理說明：狀態更新 → 點擊「狀態」欄位調整課表進度；帳務標記 → 在「付款」欄位手動更新收款狀況。兩者各自獨立操作。"
+  },
+  {
+    q: "學員端若想查看自己的訓練歷史與預約紀錄，應前往哪個路徑？",
+    opts: ["/Booking", "/AdminDashboard", "/MyProgress", "/StudentProgress"],
+    ans: 2,
+    fb: "指南定義：/MyProgress（學員專區）：學員可自主查看訓練歷史、預約紀錄，並與教練發起通訊。/StudentProgress 則是教練端的分析工具，需輸入 Email 調閱數據。"
+  },
+  {
+    q: "「訊息中心（Communication）」模組中，教練要回覆學員訊息的操作方式為何？",
+    opts: [
+      "在後台產生自動回覆模板，系統統一發送",
+      "點擊左側學員名稱切換對話，右側輸入內容後按 Enter 送出",
+      "透過 /StudentProgress 輸入學員 Email 後發送私訊",
+      "在「學員回饋」分頁回覆學員留言"
+    ],
+    ans: 1,
+    fb: "根據指南通訊中心操作：「點擊左側學員名稱即可切換對話，右側輸入內容後按 Enter 即可送出。」操作模式類似即時通訊介面。"
+  },
+  {
+    q: "關於 .ics 行事曆附件，下列敘述何者最符合指南說明？",
+    opts: [
+      "需由教練在排班系統手動匯出並寄送給學員",
+      "附在確認郵件中，學員可一鍵加入 Google 或 Apple 行事曆，降低曠課率",
+      "學員需登入 /MyProgress 後才能下載行事曆檔案",
+      "僅支援 Google 行事曆，Apple 行事曆須另行申請開通"
+    ],
+    ans: 1,
+    fb: "指南自動化說明：「郵件內附帶 .ics 檔案，學員可一鍵將課程加入 Google 或 Apple 行事曆，降低曠課率。」這是全自動機制，無需教練手動操作，且兩大平台均支援。"
+  }
+];
 
-    let currentIdx = 0;
-    let answers = new Array(questions.length).fill(null);
+// ATTEMPT TRACKING
+function getAttemptCount() {
+  return parseInt(localStorage.getItem('ep_quiz_attempts') || '0');
+}
+function incrementAttempt() {
+  const n = getAttemptCount() + 1;
+  localStorage.setItem('ep_quiz_attempts', String(n));
+  return n;
+}
 
-    function init() {
-        const container = document.getElementById('quiz-container');
-        questions.forEach((item, i) => {
-            const card = document.createElement('div');
-            card.className = `quiz-card ${i === 0 ? 'active' : ''}`;
-            card.id = `card-${i}`;
-            card.innerHTML = `
-                <div class="question-text">${item.q}</div>
-                <div class="options-grid">
-                    ${item.options.map((opt, optIdx) => `
-                        <div class="option" onclick="select(${i}, ${optIdx})" id="opt-${i}-${optIdx}">${opt}</div>
-                    `).join('')}
-                </div>
-                <div class="sketch-box">
-                    <div class="sketch-tools">
-                        <span>🖊️ 繪圖計算區</span>
-                        <button onclick="clearCanvas(${i})">清空</button>
-                    </div>
-                    <canvas id="canvas-${i}"></canvas>
-                </div>
-            `;
-            container.appendChild(card);
-            setupCanvas(i);
-        });
-        updateProgress();
+let current = 0;
+let answered = [];
+let userAnswers = new Array(questions.length).fill(-1);
+let lockdownActive = false;
+let lockdownTimer = null;
+let lockdownCount = 5;
+let penaltyWrongs = 0;
+
+// LOCKDOWN
+function initLockdown() {
+  document.addEventListener('visibilitychange', onVisibilityChange);
+  window.addEventListener('blur', onWindowBlur);
+}
+
+function onVisibilityChange() {
+  if (document.hidden && !lockdownActive) triggerLockdown();
+}
+function onWindowBlur() {
+  if (!lockdownActive) triggerLockdown();
+}
+
+function triggerLockdown() {
+  if (lockdownActive) return;
+  lockdownActive = true;
+  lockdownCount = 5;
+  document.getElementById('lockdown-overlay').classList.add('active');
+  document.getElementById('resume-btn').style.display = 'none';
+  document.getElementById('lockdown-counter').textContent = lockdownCount;
+  penaltyWrongs++;
+  lockdownTimer = setInterval(() => {
+    lockdownCount--;
+    document.getElementById('lockdown-counter').textContent = lockdownCount;
+    if (lockdownCount <= 0) {
+      clearInterval(lockdownTimer);
+      document.getElementById('resume-btn').style.display = 'inline-block';
+      document.getElementById('lockdown-counter').style.display = 'none';
     }
+  }, 1000);
+}
 
-    function select(qIdx, oIdx) {
-        answers[qIdx] = oIdx;
-        document.querySelectorAll(`#card-${qIdx} .option`).forEach(el => el.classList.remove('selected'));
-        document.getElementById(`opt-${qIdx}-${oIdx}`).classList.add('selected');
-        updateProgress();
+function resumeQuiz() {
+  lockdownActive = false;
+  document.getElementById('lockdown-overlay').classList.remove('active');
+  document.getElementById('lockdown-counter').style.display = 'block';
+  document.getElementById('resume-btn').style.display = 'none';
+  window.focus();
+}
+
+// STEP DOTS
+function initDots() {
+  const wrap = document.getElementById('step-dots');
+  wrap.innerHTML = '';
+  for (let i = 0; i < questions.length; i++) {
+    const d = document.createElement('div');
+    d.className = 'step-dot' + (i === 0 ? ' current' : '');
+    d.id = `dot-${i}`;
+    wrap.appendChild(d);
+  }
+}
+
+function updateProgress(idx) {
+  const pct = (idx / questions.length) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = `${idx}/${questions.length}`;
+  for (let i = 0; i < questions.length; i++) {
+    const d = document.getElementById(`dot-${i}`);
+    if (!d) continue;
+    d.className = 'step-dot';
+    if (i < idx) d.classList.add('done');
+    else if (i === idx) d.classList.add('current');
+  }
+}
+
+// RENDER
+function renderQuestion(idx) {
+  const q = questions[idx];
+  const area = document.getElementById('quiz-area');
+  const isAnswered = answered.includes(idx);
+  const userAns = userAnswers[idx];
+
+  area.innerHTML = `
+    <div class="q-card" style="animation-delay:0.05s">
+      <div class="q-number">QUESTION ${String(idx+1).padStart(2,'0')} / ${questions.length}</div>
+      <div class="q-text">${q.q}</div>
+      <div class="q-hint">選擇最正確的答案</div>
+      <div class="options-list" id="opts">
+        ${q.opts.map((o,i) => `
+          <button class="option-btn ${isAnswered && userAns===i ? (i===q.ans?'correct':'wrong') : ''} ${isAnswered && i===q.ans && userAns!==i ? 'reveal-correct' : ''} ${!isAnswered && userAns===i ? 'selected' : ''}"
+            id="opt-${i}" onclick="selectOption(${i})">
+            <span class="option-key">${'ABCD'[i]}</span>
+            <span class="option-text">${o}</span>
+          </button>`).join('')}
+      </div>
+      <div class="feedback-box ${isAnswered ? (userAns===q.ans?'correct':'wrong') : ''}" id="feedback" style="display:${isAnswered?'block':'none'}">
+        <div class="feedback-title">${isAnswered ? (userAns===q.ans ? '✓ 答對了！' : '✗ 答錯了') : ''}</div>
+        ${q.fb}
+      </div>
+      <div class="q-nav">
+        <button class="nav-btn" onclick="goQuestion(${idx-1})" ${idx===0?'disabled':''}>← 上一題</button>
+        <span class="score-mini" id="score-mini">${answered.length} / ${questions.length} 已作答</span>
+        ${idx < questions.length-1
+          ? `<button class="nav-btn primary" onclick="goNext(${idx})">下一題 →</button>`
+          : `<button class="nav-btn primary" onclick="submitQuiz()">提交測驗</button>`}
+      </div>
+    </div>
+  `;
+  updateProgress(idx);
+}
+
+function selectOption(i) {
+  const idx = current;
+  if (answered.includes(idx)) return;
+  userAnswers[idx] = i;
+  document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById(`opt-${i}`).classList.add('selected');
+}
+
+function goNext(idx) {
+  if (!answered.includes(idx) && userAnswers[idx] === -1) {
+    showToast('⚠ 請選擇答案後再繼續');
+    return;
+  }
+  if (!answered.includes(idx) && userAnswers[idx] !== -1) {
+    answered.push(idx);
+  }
+  goQuestion(idx + 1);
+}
+
+function goQuestion(idx) {
+  if (idx < 0 || idx >= questions.length) return;
+  current = idx;
+  renderQuestion(idx);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function submitQuiz() {
+  if (!answered.includes(current) && userAnswers[current] === -1) {
+    showToast('⚠ 請選擇答案後再提交');
+    return;
+  }
+  if (!answered.includes(current)) answered.push(current);
+
+  // INCREMENT + RENDER ATTEMPT BADGE
+  const attemptNum = incrementAttempt();
+  const badgeWrap = document.getElementById('attempt-badge-wrap');
+  const isFirst = attemptNum === 1;
+  const ordinals = ['','第 1 次','第 2 次','第 3 次','第 4 次','第 5 次'];
+  const attemptLabel = attemptNum <= 5 ? ordinals[attemptNum] : `第 ${attemptNum} 次`;
+  badgeWrap.innerHTML = `
+    <div class="attempt-badge ${isFirst ? 'first' : 'repeat'}">
+      <span class="attempt-dot"></span>
+      <span>${isFirst ? '首次作答' : '⚠ 重複作答'}</span>
+      <span class="attempt-num">·</span>
+      <span>${attemptLabel}提交</span>
+    </div>`;
+
+  let correct = 0;
+  for (let i = 0; i < questions.length; i++) {
+    if (userAnswers[i] === questions[i].ans) correct++;
+  }
+  const wrong = questions.length - correct;
+  const pct = Math.round((correct / questions.length) * 100);
+
+  document.getElementById('quiz-area').innerHTML = '';
+  document.getElementById('progress-fill').style.width = '100%';
+  document.getElementById('progress-label').textContent = `${questions.length}/${questions.length}`;
+
+  const rs = document.getElementById('result-screen');
+  rs.classList.add('show');
+
+  let icon, grade, title, msg;
+  if (pct >= 90) {
+    icon = '🏆'; grade = `${pct}%`; title = '認證通過';
+    msg = '您對 ElitePulse 操作指南有深入理解，完全符合上線標準。';
+  } else if (pct >= 70) {
+    icon = '📋'; grade = `${pct}%`; title = '勉強及格';
+    msg = '基本操作流程已掌握，但仍有細節需要複習，建議重新閱讀指南後再測。';
+  } else {
+    icon = '⚠️'; grade = `${pct}%`; title = '未達標準';
+    msg = '請重新仔細閱讀操作指南全文，確保每個模組的功能與路徑都清楚理解。';
+  }
+
+  document.getElementById('result-icon').textContent = icon;
+  document.getElementById('result-grade').textContent = grade;
+  document.getElementById('result-title').textContent = title;
+  document.getElementById('result-msg').textContent = msg;
+  document.getElementById('r-correct').textContent = correct;
+  document.getElementById('r-wrong').textContent = wrong;
+  document.getElementById('r-pct').textContent = pct + '%';
+
+  for (let i = 0; i < questions.length; i++) {
+    const d = document.getElementById(`dot-${i}`);
+    if (d) {
+      d.className = 'step-dot done';
+      d.style.background = userAnswers[i] === questions[i].ans ? '#27ae60' : '#c0392b';
     }
+  }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
 
-    function changeQuestion(step) {
-        document.getElementById(`card-${currentIdx}`).classList.remove('active');
-        currentIdx += step;
+function restartQuiz() {
+  current = 0;
+  answered = [];
+  userAnswers = new Array(questions.length).fill(-1);
+  penaltyWrongs = 0;
+  document.getElementById('result-screen').classList.remove('show');
+  initDots();
+  renderQuestion(0);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
 
-        if (currentIdx >= questions.length) {
-            showResult();
-            return;
-        }
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
 
-        document.getElementById(`card-${currentIdx}`).classList.add('active');
-        document.getElementById('prevBtn').style.visibility = currentIdx === 0 ? 'hidden' : 'visible';
-        document.getElementById('nextBtn').innerText = currentIdx === questions.length - 1 ? '提交測驗' : '下一題';
-        updateProgress();
-    }
-
-    function updateProgress() {
-        const done = answers.filter(a => a !== null).length;
-        document.getElementById('progress-fill').style.width = `${(done / questions.length) * 100}%`;
-    }
-
-    function setupCanvas(idx) {
-        setTimeout(() => {
-            const canvas = document.getElementById(`canvas-${idx}`);
-            const ctx = canvas.getContext('2d');
-            canvas.width = canvas.offsetWidth; canvas.height = 250;
-            let drawing = false;
-            const start = (e) => { drawing = true; draw(e); };
-            const stop = () => { drawing = false; ctx.beginPath(); };
-            const draw = (e) => {
-                if (!drawing) return;
-                const rect = canvas.getBoundingClientRect();
-                const x = (e.clientX || e.touches[0].clientX) - rect.left;
-                const y = (e.clientY || e.touches[0].clientY) - rect.top;
-                ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.strokeStyle = '#6366f1';
-                ctx.lineTo(x, y); ctx.stroke();
-                ctx.beginPath(); ctx.moveTo(x, y);
-            };
-            canvas.addEventListener('mousedown', start); canvas.addEventListener('mousemove', draw); canvas.addEventListener('mouseup', stop);
-            canvas.addEventListener('touchstart', start); canvas.addEventListener('touchmove', draw); canvas.addEventListener('touchend', stop);
-        }, 100);
-    }
-
-    function clearCanvas(idx) {
-        const canvas = document.getElementById(`canvas-${idx}`);
-        canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
-    }
-
-    function showResult() {
-        let score = 0;
-        answers.forEach((ans, i) => { if(ans === questions[i].a) score++; });
-        document.getElementById('quiz-container').style.display = 'none';
-        document.querySelector('.nav-btns').style.display = 'none';
-        const final = document.getElementById('final-score');
-        final.style.display = 'block';
-        document.getElementById('score-text').innerText = `您的得分為：${score} / ${questions.length}`;
-    }
-
-    function toggleTheme() {
-        const theme = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-        document.body.setAttribute('data-theme', theme);
-    }
-
-    window.onload = init;
+// INIT
+initDots();
+renderQuestion(0);
+initLockdown();
 </script>
 
 </body>
