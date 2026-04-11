@@ -3,29 +3,45 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ElitePulse Certification</title>
+<title>ElitePulse Coaching Certification</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
+
 body{
     font-family:'Inter',sans-serif;
-    background:#0a0a0c;
+    background:#0b0b0f;
     color:#fff;
     overflow:hidden;
 }
 
-/* 🌌 高級流動背景 */
+/* 背景 */
 .bg{
     position:fixed;
     inset:0;
     background:
     radial-gradient(circle at 20% 30%, rgba(255,215,0,0.15), transparent 40%),
     radial-gradient(circle at 80% 70%, rgba(140,82,255,0.2), transparent 40%),
-    #0a0a0c;
-    filter: blur(40px);
+    #0b0b0f;
+    filter:blur(60px);
     z-index:-1;
+}
+
+/* Header */
+.header{
+    text-align:center;
+    margin-bottom:30px;
+}
+.header h1{
+    font-size:2.2rem;
+    font-weight:800;
+    letter-spacing:1px;
+}
+.header p{
+    color:#aaa;
+    margin-top:8px;
 }
 
 /* 容器 */
@@ -37,17 +53,16 @@ body{
 
 /* 卡片 */
 .card{
-    background:rgba(255,255,255,0.03);
+    background:rgba(255,255,255,0.04);
     border:1px solid rgba(255,255,255,0.08);
-    backdrop-filter: blur(20px);
     border-radius:20px;
     padding:30px;
-    animation:fadeUp .6s ease;
+    backdrop-filter:blur(20px);
+    animation:fade .5s ease;
 }
 
-/* 動畫 */
-@keyframes fadeUp{
-    from{opacity:0;transform:translateY(30px)}
+@keyframes fade{
+    from{opacity:0;transform:translateY(20px)}
     to{opacity:1;transform:translateY(0)}
 }
 
@@ -55,6 +70,7 @@ body{
 .q{
     font-size:1.2rem;
     margin-bottom:20px;
+    line-height:1.5;
 }
 
 /* 選項 */
@@ -64,14 +80,12 @@ body{
     border-radius:12px;
     border:1px solid rgba(255,255,255,0.1);
     cursor:pointer;
-    transition:.25s;
+    transition:.2s;
 }
-
 .opt:hover{
     border-color:#fff;
     transform:translateY(-2px);
 }
-
 .opt.sel{
     border-color:gold;
     background:rgba(255,215,0,0.1);
@@ -80,38 +94,29 @@ body{
 /* 按鈕 */
 .btn{
     margin-top:20px;
-    padding:12px;
+    padding:14px;
     width:100%;
     border:none;
-    border-radius:10px;
-    background:gold;
+    border-radius:12px;
+    background:linear-gradient(90deg,#8e44ad,gold);
     color:#000;
-    font-weight:600;
+    font-weight:700;
     cursor:pointer;
-    transition:.2s;
-}
-
-.btn:active{
-    transform:scale(.97);
 }
 
 /* 進度 */
-.prog{
-    margin-bottom:20px;
-}
-
 .bar{
     height:6px;
     background:#222;
     border-radius:3px;
+    margin-bottom:15px;
     overflow:hidden;
 }
-
 .fill{
     height:100%;
-    background:linear-gradient(90deg,#8e44ad,gold);
     width:0%;
-    transition:.4s;
+    background:linear-gradient(90deg,#8e44ad,gold);
+    transition:.3s;
 }
 
 /* 結果 */
@@ -119,13 +124,13 @@ body{
     text-align:center;
     display:none;
 }
-
 .score{
-    font-size:60px;
+    font-size:70px;
+    font-weight:800;
     color:gold;
 }
 
-/* 鎖定 */
+/* 鎖 */
 .lock{
     position:fixed;
     inset:0;
@@ -134,6 +139,7 @@ body{
     align-items:center;
     justify-content:center;
     flex-direction:column;
+    z-index:999;
 }
 </style>
 </head>
@@ -144,10 +150,12 @@ body{
 
 <div class="wrap">
 
-<div class="prog">
-<div class="bar"><div id="fill" class="fill"></div></div>
-<div id="ptext"></div>
+<div class="header">
+<h1>ElitePulse Certification</h1>
+<p>Coach Assessment System</p>
 </div>
+
+<div class="bar"><div id="fill" class="fill"></div></div>
 
 <div id="app"></div>
 
@@ -160,8 +168,8 @@ body{
 </div>
 
 <div id="lock" class="lock">
-<h1>FOCUS</h1>
-<p>請回到測驗</p>
+<h1>FOCUS REQUIRED</h1>
+<p>請返回測驗</p>
 </div>
 
 <script>
@@ -170,14 +178,19 @@ const QS = [
 {q:"學員完成預約後，系統自動寄送的確認郵件中包含哪兩項關鍵內容？", o:["學員個人訓練歷史 + 教練的訓練計畫","課程資訊 + 教練 LINE 聯絡方式","付款收據 + 下次課程自動提醒",".ics 行事曆檔案 + 課程評分邀請"], a:1},
 {q:"關於「學員回饋（Testimonials）」模組的描述，下列何者不正確？", o:["可以新增學員在網頁上的評價","可以刪除特定評價","可以控制評價是否顯示在品牌首頁","可以設定評價的顯示排序與置頂權重"], a:3},
 {q:"教練要為「某次已完成課程」新增訓練數據，正確流程是？", o:["前往 /StudentProgress，輸入學員 Email","在管理後台的「訊息中心」分頁向學員傳送數值","在管理後台「預約管理」表格點擊「+ 紀錄」","直接前往 /MyProgress，代替學員手動輸入"], a:2},
-{q:"ElitePulse 平台共有幾個主要模組（包含品牌首頁）？", o:["四個","五個","六個","七個"], a:2}
+{q:"ElitePulse 平台共有幾個主要模組（包含品牌首頁）？", o:["四個","五個","六個","七個"], a:2},
+{q:"登入管理後台時，下列哪項描述符合指南的規定？", o:["Crystal 與 Joanne 各有專屬帳號","任何 Gmail 帳號皆可登入","必須使用 elitecoach911@gmail.com 登入","輸入教練代碼後自動驗證"], a:2},
+{q:"想同時確認某筆預約已收款且課程已完成，需操作哪兩個欄位？", o:["「狀態」欄位 + 「付款」欄位","「+ 紀錄」按鈕 + 「顯示/隱藏」開關","「篩選功能」+ 「訊息中心」","「垃圾桶」圖示 + 「狀態」欄位"], a:0},
+{q:"學員端若想查看自己的訓練歷史，應前往哪個路徑？", o:["/Booking","/AdminDashboard","/MyProgress","/StudentProgress"], a:2},
+{q:"「訊息中心」中，教練要回覆學員訊息的操作方式為何？", o:["系統統一發送自動回覆","點擊左側學員名稱，右側輸入後按 Enter","透過 /StudentProgress 發送私訊","在「學員回饋」分頁回覆"], a:1},
+{q:"關於 .ics 行事曆附件，下列敘述何者正確？", o:["需由教練手動匯出寄送","附在確認郵件中，學員可一鍵加入行事曆","學員需登入後才能下載","僅支援 Google 行事曆"], a:1}
 ];
 
 let cur=0;
 let ans=new Array(QS.length).fill(-1);
 let leave=0;
 
-/* 渲染 */
+/* render */
 function render(){
     const q=QS[cur];
 
@@ -185,18 +198,15 @@ function render(){
     <div class="card">
         <div class="q">${q.q}</div>
         ${q.o.map((opt,i)=>`
-            <div class="opt ${ans[cur]==i?'sel':''}" onclick="pick(${i})">
-            ${opt}
-            </div>
+            <div class="opt ${ans[cur]==i?'sel':''}" onclick="pick(${i})">${opt}</div>
         `).join("")}
         <button class="btn" onclick="next()">
-        ${cur==QS.length-1?"完成":"下一題"}
+        ${cur===QS.length-1?"完成測驗":"下一題"}
         </button>
     </div>
     `;
 
     document.getElementById("fill").style.width=((cur+1)/QS.length*100)+"%";
-    document.getElementById("ptext").innerText=`${cur+1}/${QS.length}`;
 }
 
 function pick(i){
@@ -205,24 +215,23 @@ function pick(i){
 }
 
 function next(){
-    if(ans[cur]==-1){alert("請作答");return;}
+    if(ans[cur]===-1){alert("請先作答");return;}
     if(cur<QS.length-1){cur++;render();}
     else submit();
 }
 
 function submit(){
     let correct=0;
-    ans.forEach((a,i)=>{if(a==QS[i].a)correct++;});
+    ans.forEach((a,i)=>{if(a===QS[i].a)correct++;});
     let score=Math.round(correct/QS.length*100);
 
     document.getElementById("app").style.display="none";
     document.getElementById("result").style.display="block";
     document.getElementById("score").innerText=score+"%";
-    document.getElementById("rank").innerText=
-        score>=80?"CERTIFIED":"FAILED";
+    document.getElementById("rank").innerText=score>=80?"CERTIFIED":"FAILED";
 }
 
-/* 防作弊 */
+/* 防離開 */
 document.addEventListener("visibilitychange",()=>{
     if(document.hidden){
         leave++;
@@ -233,7 +242,6 @@ document.addEventListener("visibilitychange",()=>{
         }
     }
 });
-
 window.addEventListener("focus",()=>{
     document.getElementById("lock").style.display="none";
 });
